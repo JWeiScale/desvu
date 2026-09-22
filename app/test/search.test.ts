@@ -21,6 +21,15 @@ afterEach(async () => {
 })
 
 describe('search reaches every surface (S1)', () => {
+  it('leaves legacy finance records intact but excludes them from search', async () => {
+    const purchase = await financeRepository.create({
+      date: dayOffset(0), amount: 4, category: 'coffee',
+      description: 'legacy expense', source: 'app',
+    })
+    await expect(searchRepository.query('legacy expense')).resolves.toEqual([])
+    expect((await financeRepository.listAll()).map((record) => record.id)).toContain(purchase.id)
+  })
+
   it('finds hits of each kind from one query', async () => {
     await todoRepository.create({ text: 'malloc lab writeup', category: 'school' })
     await journalRepository.upsert({
@@ -59,7 +68,7 @@ describe('search reaches every surface (S1)', () => {
     const kinds = new Set(hits.map((hit) => hit.kind))
 
     expect(kinds).toEqual(
-      new Set(['todo', 'journal', 'library', 'brain-dump', 'meal', 'workout', 'purchase', 'synthesis'])
+      new Set(['todo', 'journal', 'library', 'brain-dump', 'meal', 'workout', 'synthesis'])
     )
     expect(hits.every((hit) => hit.snippet.length > 0)).toBe(true)
   })

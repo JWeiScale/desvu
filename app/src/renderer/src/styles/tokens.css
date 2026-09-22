@@ -82,6 +82,8 @@
   --cat-recruiting: light-dark(oklch(0.6 0.038 65), oklch(0.72 0.038 65)); /* square */
   --cat-school: light-dark(oklch(0.6 0.038 130), oklch(0.72 0.038 130)); /* circle */
   --cat-personal: light-dark(oklch(0.6 0.038 20), oklch(0.72 0.038 20)); /* diamond */
+  --cat-ml-systems: light-dark(oklch(0.6 0.038 240), oklch(0.72 0.038 240)); /* hexagon */
+  --cat-reinforcement-learning: light-dark(oklch(0.6 0.038 300), oklch(0.72 0.038 300)); /* triangle */
 
   /* -- elevation --------------------------------------------------------- */
   --shadow: 0 18px 36px -34px light-dark(rgba(40, 32, 24, 0.45), rgba(0, 0, 0, 0.8));

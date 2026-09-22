@@ -44,7 +44,7 @@ const FOCUSABLE =
  * PKM tools are consistently strong at capture and weak at recall, which is why this is a
  * Must. It reaches everything: todos (including the completed and dropped ones), journal
  * entries, library items (including the ones that have stepped out of the queue), brain
- * dump threads, synthesis notes, meals, training and purchases. Nothing that a default
+ * dump threads, synthesis notes, meals and training. Nothing that a default
  * view hides is hidden from here — see the note at the top of `search.ts`.
  *
  * Mounted once at the app root, opens on ⌘K from anywhere. Quick capture is ⌘⇧K, so the
@@ -300,8 +300,8 @@ export function SearchOverlay(): React.JSX.Element | null {
         >
           {trimmed === '' && (
             <EmptyState compact title="Everything you have kept is in here.">
-              Todos, journal entries, the library, brain dump threads, synthesis, meals, training
-              and purchases — finished, set aside and dropped things included.
+              Todos, journal entries, the library, brain dump threads, synthesis, meals
+              and training — finished, set aside and dropped things included.
             </EmptyState>
           )}
 

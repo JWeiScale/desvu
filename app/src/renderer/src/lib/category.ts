@@ -1,42 +1,38 @@
 import type { CSSProperties } from 'react'
 import type { Category } from '@shared/types'
 
-/**
- * Category resolves by SHAPE, not by colour.
- *
- * The three hues hold lightness and chroma constant and vary only hue, which is what
- * makes the triad harmonious — and which also puts their mutual contrast at 1.01–1.03.
- * At 7px they are three identical dots. A lightness split was evaluated and rejected:
- * lightness encodes rank, and these categories are unordered.
- *
- * So the colour is decoration and the shape is the encoding. It is nominal (implies no
- * ranking) and colourblind-safe by construction. This matters most in the Today timeline
- * and any chronological list, where rows are not grouped under text headers and the
- * marker is the only category signal present.
- */
+/** Category markers use distinct shapes as well as color so they remain identifiable. */
 
-export type MarkerShape = 'square' | 'circle' | 'diamond'
+export type MarkerShape = 'square' | 'circle' | 'diamond' | 'hexagon' | 'triangle'
 
 export const CATEGORY_LABEL: Record<Category, string> = {
+  'ml-systems': 'ML Systems',
+  'reinforcement-learning': 'Reinforcement Learning',
   recruiting: 'Recruiting',
   school: 'School',
   personal: 'Personal',
 }
 
 export const CATEGORY_SHAPE: Record<Category, MarkerShape> = {
+  'ml-systems': 'hexagon',
+  'reinforcement-learning': 'triangle',
   recruiting: 'square',
   school: 'circle',
   personal: 'diamond',
 }
 
 export const CATEGORY_COLOR: Record<Category, string> = {
+  'ml-systems': 'var(--cat-ml-systems)',
+  'reinforcement-learning': 'var(--cat-reinforcement-learning)',
   recruiting: 'var(--cat-recruiting)',
   school: 'var(--cat-school)',
   personal: 'var(--cat-personal)',
 }
 
-/** Display order. Matches the comp's Today list. */
-export const CATEGORY_ORDER: readonly Category[] = ['recruiting', 'school', 'personal'] as const
+/** Research categories first, followed by the original categories. */
+export const CATEGORY_ORDER: readonly Category[] = [
+  'ml-systems', 'reinforcement-learning', 'recruiting', 'school', 'personal',
+] as const
 
 /**
  * A diamond is a rotated square, so at equal side length it reads heavier and its
@@ -61,5 +57,8 @@ export function categoryMarkerStyle(category: Category, size = 8): CSSProperties
     background: CATEGORY_COLOR[category],
     borderRadius: shape === 'circle' ? '99px' : '1px',
     transform: shape === 'diamond' ? 'rotate(45deg)' : 'none',
+    clipPath: shape === 'hexagon'
+      ? 'polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%)'
+      : shape === 'triangle' ? 'polygon(50% 0, 100% 100%, 0 100%)' : undefined,
   }
 }

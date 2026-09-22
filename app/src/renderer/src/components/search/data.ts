@@ -24,7 +24,7 @@ export function useDebounced<T>(value: T, delay = DEBOUNCE_MS): T {
 
 /**
  * PRD S1–S3. One input over todos, journal, library, brain dump, synthesis, meals,
- * training and purchases — including the archived library items and the completed and
+ * and training — including the archived library items and the completed and
  * dropped todos that the default views hide.
  *
  * An empty query is not a search: it returns nothing without crossing IPC, so opening the

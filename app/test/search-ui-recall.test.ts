@@ -160,7 +160,7 @@ describe('nothing is hidden from recall (S3)', () => {
 })
 
 describe('coverage — every kind is reachable from one input (S1)', () => {
-  it('renders a group for all eight kinds', async () => {
+  it('renders a group for all seven kinds', async () => {
     await seedEveryKind()
 
     const groups = groupHits(applySearchFilters(await searchRepository.query('quenelle'), DEFAULT_SEARCH_FILTERS, TODAY))

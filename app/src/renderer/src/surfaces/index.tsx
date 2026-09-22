@@ -1,7 +1,6 @@
 import type { RouteId } from '@/lib/routes'
 import { BrainDumpSurface } from './BrainDumpSurface'
 import { ExploreSurface } from './ExploreSurface'
-import { FinanceSurface } from './FinanceSurface'
 import { JournalSurface } from './JournalSurface'
 import { MealsSurface } from './MealsSurface'
 import { SynthesisSurface } from './SynthesisSurface'
@@ -19,7 +18,6 @@ export const SURFACES: Record<RouteId, () => React.JSX.Element> = {
   today: TodaySurface,
   journal: JournalSurface,
   explore: ExploreSurface,
-  finance: FinanceSurface,
   meals: MealsSurface,
   'brain-dump': BrainDumpSurface,
   synthesis: SynthesisSurface,

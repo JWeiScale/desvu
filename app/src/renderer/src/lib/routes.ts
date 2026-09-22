@@ -1,5 +1,5 @@
 /**
- * The seven surfaces. Seven static routes do not need a router dependency — the whole
+ * The six surfaces. These static routes do not need a router dependency — the whole
  * mechanism is `location.hash` plus a zustand field (`store/ui.ts`).
  */
 
@@ -7,7 +7,6 @@ export const ROUTE_IDS = [
   'today',
   'journal',
   'explore',
-  'finance',
   'meals',
   'brain-dump',
   'synthesis',
@@ -49,12 +48,6 @@ export const ROUTES: Record<RouteId, RouteMeta> = {
     title: 'Explore',
     description:
       'The library — everything you sent to the bot, fetched and summarized, browsable by type, status and tag.',
-  },
-  finance: {
-    id: 'finance',
-    label: 'Finance',
-    title: 'Finance',
-    description: 'Spending against the limits you set, month to date. Uncategorised still counts.',
   },
   meals: {
     id: 'meals',

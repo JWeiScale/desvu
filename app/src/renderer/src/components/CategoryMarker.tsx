@@ -18,26 +18,7 @@ export interface CategoryMarkerProps {
   labelClassName?: string
 }
 
-/**
- * The category marker. Every surface uses this, and nothing else may encode category.
- *
- * WHY SHAPE. The three category hues hold lightness and chroma constant and vary only
- * hue — which is what makes the triad harmonious, and which puts their contrast *against
- * each other* at 1.01–1.03. At 7px they are three identical dots. Splitting lightness
- * would fix separation but lightness encodes rank, and these categories are unordered
- * (and light-theme `personal` would fall to 2.52:1, under the non-text floor).
- *
- *   recruiting = square      school = circle      personal = diamond
- *
- * Shape is nominal, so it implies no ranking, and it is colourblind-safe by
- * construction. Colour is decoration here; it must never be the only signal. This is
- * load-bearing in the Today timeline and any chronological list, where rows are not
- * grouped under text headers and the marker is the only category signal present.
- *
- * The marker is also never the only *interactive* signal — gold always outranks
- * category, because gold means "interact with this" and category means "this belongs
- * to that group".
- */
+/** A shared shape and accessible label for each task category. */
 export function CategoryMarker({
   category,
   size = 8,
@@ -83,7 +64,7 @@ export function CategoryMarker({
 }
 
 /**
- * The three markers with their names — for a filter bar or a chart legend. Anywhere the
+ * The category markers with their names — for a filter bar or a chart legend. Anywhere the
  * reader has to learn the mapping once, show it once.
  */
 export function CategoryLegend({ className }: { className?: string }): React.JSX.Element {

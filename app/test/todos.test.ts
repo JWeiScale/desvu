@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import type { Todo } from '@shared/types'
+import type { Category, Todo } from '@shared/types'
 import { todoRepository } from '../src/main/repos/todoRepository'
 import { createTempVault, dayOffset, type TempVault } from './helpers/vault'
 
@@ -16,6 +16,25 @@ afterEach(async () => {
 const today = () => dayOffset(0)
 
 describe('todo crud and validation', () => {
+  it.each<Category>(['ml-systems', 'reinforcement-learning'])(
+    'preserves %s through saving, editing, and recurring task creation',
+    async (category) => {
+      const created = await todoRepository.create({ text: 'Read a paper', category, due: today() })
+      await todoRepository.update(created.id, { text: 'Read and annotate a paper' })
+      const saved = (await todoRepository.list()).find((todo) => todo.id === created.id)
+      expect(saved).toMatchObject({ category, text: 'Read and annotate a paper' })
+
+      const template = await todoRepository.create({
+        text: 'Review research notes', category, due: today(),
+        recurrence: { type: 'daily', interval: 1 },
+      })
+      const tasks = await todoRepository.forDate(today())
+      expect(tasks.find((todo) => todo.recurrence_parent === template.id)?.category).toBe(category)
+      expect((await todoRepository.correctionFactors()).find((factor) => factor.category === category))
+        .toMatchObject({ sample_size: 0, confident: false })
+    }
+  )
+
   it('applies settings defaults on create', async () => {
     const todo = await todoRepository.create({ text: 'email the Ramp recruiter' })
     expect(todo.priority).toBe(2)
@@ -368,6 +387,8 @@ describe('correction factors (T11)', () => {
       'personal',
       'school',
       'recruiting',
+      'ml-systems',
+      'reinforcement-learning',
     ])
     expect(factors.every((factor) => factor.factor === 1 && !factor.confident)).toBe(true)
   })

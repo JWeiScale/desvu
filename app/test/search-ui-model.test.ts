@@ -133,7 +133,7 @@ describe('grouping', () => {
 
   it('covers every kind the contract defines', () => {
     expect(new Set(SEARCH_KINDS)).toEqual(
-      new Set(['todo', 'journal', 'library', 'brain-dump', 'synthesis', 'meal', 'workout', 'purchase'])
+      new Set(['todo', 'journal', 'library', 'brain-dump', 'synthesis', 'meal', 'workout'])
     )
   })
 })
@@ -187,10 +187,6 @@ describe('what Enter does', () => {
 
   it('navigates to the surface that renders a JSON-backed record', () => {
     expect(primaryAction(hit({ kind: 'todo' }))).toMatchObject({ type: 'navigate', route: 'today' })
-    expect(primaryAction(hit({ kind: 'purchase' }))).toMatchObject({
-      type: 'navigate',
-      route: 'finance',
-    })
     expect(primaryAction(hit({ kind: 'workout' }))).toMatchObject({
       type: 'navigate',
       route: 'meals',

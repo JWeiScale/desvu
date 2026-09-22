@@ -71,7 +71,7 @@ export function SortInboxControl({ pending }: { pending: number }): React.JSX.El
       size="md"
       shape="pill"
       onClick={sort}
-      title={`Route ${pending} capture${pending === 1 ? '' : 's'} into todos, finance, meals, workouts and your library. Takes a minute or two.`}
+      title={`Route ${pending} capture${pending === 1 ? '' : 's'} into todos, meals, workouts and your library. Takes a minute or two.`}
     >
       Sort inbox
     </Button>

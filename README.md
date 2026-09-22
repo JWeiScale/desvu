@@ -1,5 +1,15 @@
 # Dès vu
 
+> **Jason’s Mac version:** Finance has been removed from the app and search. Today supports
+> **ML Systems** and **Reinforcement Learning**, alongside Recruiting, School, and Personal.
+> These categories work for new tasks, edits, recurring tasks, and time estimates.
+> Existing finance data is retained for compatibility; no saved records are deleted.
+>
+> The desktop app works locally. Telegram and Google Calendar require separate setup.
+> The public source does not include the Claude `/sort-inbox` skill or its scripts;
+> automatic sorting is unavailable until those are supplied. Synthesis reads existing
+> weekly notes; generating summaries and asking the vault questions are not wired up.
+
 A personal second brain. **One corpus, many inputs.**
 
 An Obsidian vault of markdown and JSON is the single source of truth. Three things read it:
@@ -7,7 +17,7 @@ this Electron app, Obsidian itself, and Claude Code. Nothing is locked in a data
 every record stays a file you can open, grep, or edit by hand.
 
 Built for a student navigating school and tech recruiting, but nothing here is specific to
-that beyond three category labels.
+that beyond the category labels.
 
 ---
 
@@ -65,7 +75,7 @@ It infers more than you'd expect: a meal captured at 19:40 is filed as dinner, a
 friday"* resolves against the capture date. Ambiguous lines are asked about in one batch
 rather than interrupting repeatedly, and running it twice never files anything twice.
 
-### Seven surfaces
+### Six surfaces
 
 **Today** — the default. A full-width day timeline with your calendar and todos placed into
 the gaps, a *"Next — 15-451 lecture, 10am, in 40m"* line above it, and a **won't fit today**
@@ -79,9 +89,6 @@ the four prompts are progressive disclosure behind *"Say a little more ↓"*.
 **Explore** — the read-later library, filterable by type, status, tag and source, with a
 *"what fits right now"* view that reads the free minutes Today already computed. Unread
 items step out of the queue after 30 days without leaving the vault, the graph, or search.
-
-**Finance** — spend against per-category limits, month to date. Categories start empty and
-are defined in the app. Over budget renders in gold, never red.
 
 **Meals & training** — free-text logging where calories and protein are optional. Targets
 start off, so the app just logs and shows trends until you ask for a line to hit.
@@ -159,7 +166,7 @@ The bot is plain ESM Node with grammY and no other dependency.
 app/
   src/main/repos/     15 file-backed repositories + the IPC router
   src/preload/        window.desvu, built mechanically from the channel allowlist
-  src/renderer/       React — 7 surfaces, 14 primitives, per-domain components
+  src/renderer/       React — 6 surfaces, 14 primitives, per-domain components
   src/shared/         types, IPC contract, vault resolution  (the coordination points)
   scripts/            journal migration, dev seeders, font fetcher
   test/               27 Vitest files

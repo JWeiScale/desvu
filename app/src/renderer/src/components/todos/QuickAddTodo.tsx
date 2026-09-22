@@ -85,7 +85,7 @@ export function QuickAddTodo({
         label="Category"
         value={category}
         onChange={(event) => setCategory(event.target.value as Category)}
-        className="w-[130px]"
+        className="w-[230px]"
       >
         {CATEGORY_ORDER.filter((option) => CATEGORIES.includes(option)).map((option) => (
           <option key={option} value={option}>

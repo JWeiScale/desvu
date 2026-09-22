@@ -4,7 +4,6 @@ import { VAULT_SUBDIRS, vaultPath } from '@shared/vault'
 import { readTextFileOrNull } from '../lib/atomic'
 import { listDirectory } from '../lib/paths'
 import { brainDumpRepository } from './brainDumpRepository'
-import { financeRepository } from './financeRepository'
 import { journalRepository } from './journalRepository'
 import { libraryRepository } from './libraryRepository'
 import { mealRepository } from './mealRepository'
@@ -101,7 +100,7 @@ async function synthesisCandidates(): Promise<Candidate[]> {
 }
 
 async function collectCandidates(): Promise<Candidate[]> {
-  const [todos, entries, library, threads, meals, workouts, purchases, synthesis] =
+  const [todos, entries, library, threads, meals, workouts, synthesis] =
     await Promise.all([
       todoRepository.listAll(),
       journalRepository.list(),
@@ -109,7 +108,6 @@ async function collectCandidates(): Promise<Candidate[]> {
       brainDumpRepository.listThreads(),
       mealRepository.listAll(),
       workoutRepository.listAll(),
-      financeRepository.listAll(),
       synthesisCandidates(),
     ])
 
@@ -205,20 +203,6 @@ async function collectCandidates(): Promise<Candidate[]> {
         date: workout.date,
       },
       haystack: [workout.description, workout.type].join(' '),
-      weight: 0.8,
-    })
-  }
-
-  for (const purchase of purchases) {
-    candidates.push({
-      hit: {
-        kind: 'purchase',
-        id: purchase.id,
-        title: purchase.description || purchase.category || 'purchase',
-        snippet: '',
-        date: purchase.date,
-      },
-      haystack: [purchase.description, purchase.category, String(purchase.amount)].join(' '),
       weight: 0.8,
     })
   }

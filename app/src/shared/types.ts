@@ -3,8 +3,14 @@
  * is the spec, this file is the implementation of it. Change them together.
  */
 
-export type Category = 'personal' | 'school' | 'recruiting'
-export const CATEGORIES: readonly Category[] = ['personal', 'school', 'recruiting'] as const
+export const CATEGORIES = [
+  'personal',
+  'school',
+  'recruiting',
+  'ml-systems',
+  'reinforcement-learning',
+] as const
+export type Category = (typeof CATEGORIES)[number]
 
 export type Source = 'app' | 'telegram' | 'import'
 
@@ -357,7 +363,7 @@ export interface SortInboxProgress {
 }
 
 export interface SearchHit {
-  kind: 'todo' | 'journal' | 'library' | 'brain-dump' | 'meal' | 'workout' | 'purchase' | 'synthesis'
+  kind: 'todo' | 'journal' | 'library' | 'brain-dump' | 'meal' | 'workout' | 'synthesis'
   id: string
   title: string
   snippet: string
@@ -369,7 +375,7 @@ export interface SearchHit {
    *
    * Search deliberately reaches records the default views hide (PRD S1–S3), so without
    * this the user gets a result they cannot find anywhere else and no explanation of why.
-   * Absent for records with no meaningful state, like a journal entry or a purchase.
+   * Absent for records with no meaningful state, like a journal entry.
    */
   state?: string
 }

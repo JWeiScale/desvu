@@ -84,6 +84,20 @@ describe('sortWithinGroup', () => {
 })
 
 describe('groupByCategory', () => {
+  it('keeps both research categories in Today alongside existing tasks', () => {
+    const tasks = [
+      todo({ category: 'personal' }),
+      todo({ category: 'reinforcement-learning' }),
+      todo({ category: 'ml-systems' }),
+    ]
+    const groups = groupByCategory(tasks, 30)
+    expect(groups.map((group) => group.category)).toEqual([
+      'ml-systems', 'reinforcement-learning', 'personal',
+    ])
+    expect(new Set(groups.flatMap((group) => group.todos.map((task) => task.id))))
+      .toEqual(new Set(tasks.map((task) => task.id)))
+  })
+
   it('groups in the comp order: recruiting, school, personal', () => {
     const groups = groupByCategory(
       [todo({ category: 'personal' }), todo({ category: 'recruiting' }), todo({ category: 'school' })],

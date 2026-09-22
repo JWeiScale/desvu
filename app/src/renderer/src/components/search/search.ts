@@ -25,7 +25,6 @@ export const SEARCH_KINDS: readonly SearchKind[] = [
   'synthesis',
   'meal',
   'workout',
-  'purchase',
 ] as const
 
 export const KIND_LABEL: Record<SearchKind, string> = {
@@ -36,7 +35,6 @@ export const KIND_LABEL: Record<SearchKind, string> = {
   synthesis: 'Synthesis',
   meal: 'Meals',
   workout: 'Training',
-  purchase: 'Purchases',
 }
 
 /** Where a hit of this kind lives, for the "go to" action. */
@@ -48,7 +46,6 @@ export const KIND_ROUTE: Record<SearchKind, RouteId> = {
   synthesis: 'synthesis',
   meal: 'meals',
   workout: 'meals',
-  purchase: 'finance',
 }
 
 export function hitKey(hit: SearchHit): string {
