@@ -39,8 +39,8 @@ describe('inbox line format — shared byte-for-byte with the Telegram bot', () 
   })
 
   it('appends to today`s file and never rewrites what is already there', async () => {
-    await inboxRepository.append('first capture', 'telegram', new Date(2026, 7, 1, 8, 0))
-    await inboxRepository.append('second capture', 'app', new Date(2026, 7, 1, 9, 30))
+    await inboxRepository.append('first capture', 'telegram', new Date(`${today()}T08:00:00`))
+    await inboxRepository.append('second capture', 'app', new Date(`${today()}T09:30:00`))
 
     const raw = await readFile(vault.at('Inbox', `${today()}.md`), 'utf8')
     expect(raw.split('\n').filter(Boolean)).toEqual([
@@ -54,7 +54,7 @@ describe('inbox line format — shared byte-for-byte with the Telegram bot', () 
     // Whichever writer captures first that day decides the file's shape, so the two
     // must agree. A heading that appeared only on days the bot happened to see first
     // would be a confusing artifact in Obsidian.
-    await inboxRepository.append('first of the day', 'app', new Date(2026, 7, 1, 7, 15))
+    await inboxRepository.append('first of the day', 'app', new Date(`${today()}T07:15:00`))
     const raw = await readFile(vault.at('Inbox', `${today()}.md`), 'utf8')
 
     expect(raw).toBe(`# ${today()}\n\n- [ ] 07:15 · app · first of the day\n`)
@@ -68,7 +68,7 @@ describe('inbox line format — shared byte-for-byte with the Telegram bot', () 
       `# ${today()}\n\n- [ ] 06:00 · telegram · sent from the phone\n`,
       'utf8'
     )
-    await inboxRepository.append('added by the app', 'app', new Date(2026, 7, 1, 10, 0))
+    await inboxRepository.append('added by the app', 'app', new Date(`${today()}T10:00:00`))
 
     const raw = await readFile(vault.at('Inbox', `${today()}.md`), 'utf8')
     expect(raw.match(/^# /gm)).toHaveLength(1)
