@@ -1,3 +1,4 @@
+import { dateTimeInput } from '@shared/scheduling'
 import { useEffect, useState } from 'react'
 import type { Category, Priority, Todo } from '@shared/types'
 
@@ -33,6 +34,8 @@ export function TodoEditDialog({ todo, onClose }: TodoEditDialogProps): React.JS
   const [priority, setPriority] = useState<Priority>(2)
   const [estimate, setEstimate] = useState('')
   const [due, setDue] = useState('')
+  const [start, setStart] = useState('')
+  const [end, setEnd] = useState('')
   const [notes, setNotes] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
@@ -46,6 +49,8 @@ export function TodoEditDialog({ todo, onClose }: TodoEditDialogProps): React.JS
     setPriority(todo.priority)
     setEstimate(todo.estimate_minutes === null ? '' : String(todo.estimate_minutes))
     setDue(todo.due ?? '')
+    setStart(dateTimeInput(todo.scheduled_start))
+    setEnd(dateTimeInput(todo.scheduled_end))
     setNotes(todo.notes)
     setError(null)
     setConfirmingDelete(false)
@@ -67,6 +72,9 @@ export function TodoEditDialog({ todo, onClose }: TodoEditDialogProps): React.JS
   }
 
   const save = (): Promise<void> => {
+    if ((start || end) && (!start || !end || !(new Date(end) > new Date(start)))) {
+      setError('Choose a start time and an end time after it.'); return Promise.resolve()
+    }
     const minutes = Number.parseInt(estimate, 10)
     return run(() =>
       updateTodo(todo.id, {
@@ -76,6 +84,8 @@ export function TodoEditDialog({ todo, onClose }: TodoEditDialogProps): React.JS
         estimate_minutes: estimate.trim() === '' ? null : Number.isFinite(minutes) ? minutes : null,
         due: due.trim() === '' ? null : due,
         notes,
+        scheduled_start: start ? new Date(start).toISOString() : null,
+        scheduled_end: end ? new Date(end).toISOString() : null,
       })
     )
   }
@@ -91,6 +101,7 @@ export function TodoEditDialog({ todo, onClose }: TodoEditDialogProps): React.JS
           : undefined
       }
       size="md"
+      className="max-h-[76vh] overflow-y-auto"
       footer={
         <>
           <Button
@@ -168,11 +179,24 @@ export function TodoEditDialog({ todo, onClose }: TodoEditDialogProps): React.JS
           <Input
             label="Due"
             type="date"
-            value={due}
+            value={start ? start.slice(0, 10) : due}
+            disabled={Boolean(start)}
+            hint={start ? 'Set by scheduled start' : undefined}
             onChange={(event) => setDue(event.target.value)}
             className="w-[160px]"
           />
         </div>
+
+        <div className="flex flex-wrap items-end gap-3">
+          <Input label="Scheduled start" type="datetime-local" value={start} onChange={(event) => {
+            const value = event.target.value; setStart(value)
+            if (value) setDue(value.slice(0, 10))
+            if (value && !end) setEnd(dateTimeInput(new Date(new Date(value).getTime() + (todo.estimate_minutes ?? 30) * 60000).toISOString()))
+          }} className="min-w-[220px] flex-1" />
+          <Input label="Scheduled end" type="datetime-local" value={end} onChange={(event) => setEnd(event.target.value)} className="min-w-[220px] flex-1" />
+          {(start || end) && <Button variant="ghost" size="sm" onClick={() => { setStart(''); setEnd('') }}>Remove time</Button>}
+        </div>
+        <p className="text-muted text-xs">Times use {Intl.DateTimeFormat().resolvedOptions().timeZone}. Scheduled tasks appear in Calendar.</p>
 
         <Textarea
           label="Notes"

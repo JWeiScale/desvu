@@ -1,3 +1,5 @@
+import { overlapsDay, shiftDay } from '@shared/scheduling'
+import { Issues, checkDate } from '../lib/validate'
 import { stat } from 'node:fs/promises'
 import type { CalendarEvent, DateString } from '@shared/types'
 import { dataPath } from '@shared/vault'
@@ -6,15 +8,9 @@ import { CorruptFileError, isErrnoException } from '../lib/errors'
 import { createJsonStore } from '../lib/json-store'
 
 /**
- * Read-only view of `data/calendar.json`, which a refresh script owns (PRD I1).
- *
- * That script does not exist yet, so **a missing file is the normal case** and must read
- * as "no events", not as an error — the Today view has to render on a machine that has
- * never run a calendar refresh.
- *
- * Two on-disk shapes are accepted, because the script has not been written and pinning
- * its output format from here would be guessing: a bare array of events, or an object
- * with `events` plus a refresh timestamp.
+ * Cached calendar events, owned by the multi-account Google sync service.
+ * A missing cache is normal before connecting Google. Legacy arrays and objects with
+ * `events` plus a refresh timestamp are both accepted.
  */
 interface CalendarFile {
   events?: unknown
@@ -45,7 +41,10 @@ function coerceEvent(value: unknown): CalendarEvent | null {
     end: typeof raw.end === 'string' ? raw.end : start,
     all_day: raw.all_day === true,
   }
-  if (typeof raw.location === 'string') event.location = raw.location
+  for (const key of ['location', 'account_email', 'calendar_id', 'calendar_name', 'color'] as const) {
+    if (typeof raw[key] === 'string') event[key] = raw[key]
+  }
+  if (typeof raw.busy === 'boolean') event.busy = raw.busy
   return event
 }
 
@@ -94,18 +93,45 @@ export function eventDate(isoString: string): DateString | null {
   return toDateString(parsed)
 }
 
+export function validateCalendarRange(from: string, to: string): void {
+  const issues = new Issues()
+  checkDate(issues, 'from', from)
+  checkDate(issues, 'to', to)
+  issues.throwIfAny()
+  if (from > to || to > shiftDay(from, 366)) throw new Error('Choose a calendar range of at most one year.')
+}
+
 export const calendarRepository = {
+  async forRange(from: DateString, to: DateString): Promise<CalendarEvent[]> {
+    validateCalendarRange(from, to)
+    const { events } = await readContents()
+    return events.filter((event) => event.all_day
+      ? event.start.slice(0, 10) <= to && event.end.slice(0, 10) > from
+      : Date.parse(event.start) < new Date(`${shiftDay(to, 1)}T00:00:00`).getTime() &&
+        Date.parse(event.end) > new Date(`${from}T00:00:00`).getTime())
+      .sort((a, b) => a.start.localeCompare(b.start))
+  },
+
+  async replaceAccountEvents(email: string, events: CalendarEvent[], from?: string, to?: string): Promise<void> {
+    await store.mutate((raw) => {
+      const file = raw && !Array.isArray(raw) && typeof raw === 'object' ? raw as CalendarFile : {}
+      const previous = (Array.isArray(raw) ? raw : Array.isArray(file.events) ? file.events : [])
+        .map(coerceEvent).filter((event): event is CalendarEvent => event !== null)
+      const kept = previous.filter((event) => {
+        if (event.account_email !== email) return true
+        if (!from || !to) return false
+        return event.all_day ? event.end.slice(0, 10) <= from || event.start.slice(0, 10) > to
+          : Date.parse(event.end) <= new Date(`${from}T00:00:00`).getTime() ||
+            Date.parse(event.start) >= new Date(`${shiftDay(to, 1)}T00:00:00`).getTime()
+      })
+      return { data: { last_refresh: Date.now(), events: [...kept, ...events] }, result: undefined }
+    })
+  },
+
   async forDate(date: DateString): Promise<CalendarEvent[]> {
     const { events } = await readContents()
     return events
-      .filter((event) => {
-        const startDay = eventDate(event.start)
-        if (startDay === null) return false
-        if (startDay === date) return true
-        // Multi-day events count on every day they cover.
-        const endDay = eventDate(event.end) ?? startDay
-        return startDay <= date && date <= endDay
-      })
+      .filter((event) => overlapsDay(event.start, event.end, date, event.all_day))
       .sort((a, b) => a.start.localeCompare(b.start))
   },
 

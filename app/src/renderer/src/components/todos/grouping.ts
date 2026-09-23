@@ -1,3 +1,4 @@
+import { overlapsDay, scheduledWindow } from '@shared/scheduling'
 import type { Category, DateString, Priority, Todo } from '@shared/types'
 
 import { CATEGORY_ORDER } from '@/lib/category'
@@ -66,7 +67,9 @@ export function groupByCategory(todos: readonly Todo[], fallbackEstimate: number
 export function todaysList(todos: readonly Todo[], today: DateString): Todo[] {
   return todos.filter((todo) => {
     if (todo.due === null || todo.due > today) return false
-    if (todo.status === 'open' || todo.status === 'doing') return true
+    if (todo.status === 'open' || todo.status === 'doing') {
+      return !scheduledWindow(todo) || overlapsDay(todo.scheduled_start!, todo.scheduled_end!, today)
+    }
     if (todo.status !== 'done') return false
     if (todo.completed_at === null) return false
     const completed = new Date(todo.completed_at)

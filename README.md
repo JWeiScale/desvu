@@ -75,13 +75,17 @@ It infers more than you'd expect: a meal captured at 19:40 is filed as dinner, a
 friday"* resolves against the capture date. Ambiguous lines are asked about in one batch
 rather than interrupting repeatedly, and running it twice never files anything twice.
 
-### Six surfaces
+### Seven surfaces
 
 **Today** — the default. A full-width day timeline with your calendar and todos placed into
 the gaps, a *"Next — 15-451 lecture, 10am, in 40m"* line above it, and a **won't fit today**
 tray for the overflow. You see which tasks don't fit rather than being told you're over.
 Todos group by category and sort by priority, with estimate-vs-actual calibration that stays
 quiet until it has enough data to be trustworthy (~25 completions in a category).
+
+**Calendar** — day, week, and month views with tasks scheduled at exact dates/times.
+Drag tasks to reschedule them, and import selected Google calendars from multiple
+accounts. Google events are read-only. See [Calendar setup](docs/calendar.md).
 
 **Journal** — a 1–7 rating and nothing else on open. A rating alone is a complete entry;
 the four prompts are progressive disclosure behind *"Say a little more ↓"*.
@@ -141,7 +145,7 @@ Quick capture ┘                                       │
 ```
 
 **Files are the truth.** No database, no server, no HTTP layer. The renderer never touches
-`fs` — every read and write crosses an IPC boundary with a 56-channel typed allowlist, which
+`fs` — every read and write crosses an IPC boundary with a typed allowlist, which
 is what makes the main-process mutation lock mean anything.
 
 **Four processes write to this vault** — the app, the bot, the sort scripts, and Obsidian.
@@ -166,7 +170,7 @@ The bot is plain ESM Node with grammY and no other dependency.
 app/
   src/main/repos/     15 file-backed repositories + the IPC router
   src/preload/        window.desvu, built mechanically from the channel allowlist
-  src/renderer/       React — 6 surfaces, 14 primitives, per-domain components
+  src/renderer/       React — 7 surfaces, 14 primitives, per-domain components
   src/shared/         types, IPC contract, vault resolution  (the coordination points)
   scripts/            journal migration, dev seeders, font fetcher
   test/               27 Vitest files
@@ -182,8 +186,8 @@ PROGRESS.md           orientation for anyone picking this up
 ## Design
 
 Warm paper-and-ink. Light `#FDFAF3` / dark `#0B0A08`, a single antique-gold accent, Cormorant
-for prose and DM Sans for tools and numbers — both self-hosted as variable fonts, so the app
-makes **zero external network requests**.
+for prose and DM Sans for tools and numbers — both self-hosted as variable fonts, so fonts require no external network requests. Connecting Google Calendar enables
+explicit OAuth and Calendar API requests from the main process.
 
 Categories resolve by **shape**, not colour — recruiting is a square, school a circle,
 personal a diamond. The three hues sit within 1.03:1 of each other by design so they never
@@ -308,5 +312,5 @@ byte-identical thread output between the app and the sort skill.
   summary. A model that says it filed five things can't make that true.
 - **The Today surface is complete and tested but has not been driven in a running app.** Every
   other surface has been verified live in both themes.
-- Google Calendar and Gmail are read from `data/calendar.json` / `data/gmail.json`, written by
-  refresh scripts that aren't built yet. Both degrade to empty rather than failing.
+- Google Calendar now syncs through the multi-account desktop integration; see
+  [setup and storage details](docs/calendar.md). Gmail integration is not configured.

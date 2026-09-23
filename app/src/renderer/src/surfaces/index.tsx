@@ -1,3 +1,4 @@
+import { CalendarSurface } from './CalendarSurface'
 import type { RouteId } from '@/lib/routes'
 import { BrainDumpSurface } from './BrainDumpSurface'
 import { ExploreSurface } from './ExploreSurface'
@@ -16,6 +17,7 @@ import { TodaySurface } from './TodaySurface'
  */
 export const SURFACES: Record<RouteId, () => React.JSX.Element> = {
   today: TodaySurface,
+  calendar: CalendarSurface,
   journal: JournalSurface,
   explore: ExploreSurface,
   meals: MealsSurface,

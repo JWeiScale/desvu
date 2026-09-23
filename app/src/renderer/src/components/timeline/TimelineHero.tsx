@@ -1,3 +1,4 @@
+import { scheduledEvent, scheduledWindow } from '@shared/scheduling'
 import { useMemo } from 'react'
 import type { CalendarEvent, DateString, DayLoad, Todo } from '@shared/types'
 
@@ -55,7 +56,10 @@ export function TimelineHero({
   loading,
   error,
 }: TimelineHeroProps): React.JSX.Element {
-  const railEvents = useMemo(() => toRailEvents(events ?? [], date), [events, date])
+  const railEvents = useMemo(() => toRailEvents([
+    ...(events ?? []).filter((event) => event.busy !== false),
+    ...(todos ?? []).map(scheduledEvent).filter((event): event is CalendarEvent => event !== null),
+  ], date), [events, todos, date])
 
   // Only the todos the repository counted as fitting get drawn; `dayLoad.overflow` holds
   // the rest. One source of truth means the rail and the tray cannot contradict each
@@ -63,7 +67,7 @@ export function TimelineHero({
   const { placed, unplaced } = useMemo(() => {
     if (!todos || !dayLoad) return { placed: [], unplaced: [] as Todo[] }
     const overflowIds = new Set(dayLoad.overflow.map((todo) => todo.id))
-    const fitting = todos.filter((todo) => !overflowIds.has(todo.id))
+    const fitting = todos.filter((todo) => !scheduledWindow(todo) && !overflowIds.has(todo.id))
     const gaps = freeGaps(railEvents, Math.max(RAIL_START_MINUTE, nowMinute))
     return packTodos(fitting, gaps, fallbackEstimate)
   }, [todos, dayLoad, railEvents, nowMinute, fallbackEstimate])

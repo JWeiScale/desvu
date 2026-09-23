@@ -158,10 +158,16 @@ describe('every channel actually runs against an empty vault', () => {
     'inbox:sortAvailable': [],
 
     'calendar:forDate': [dayOffset(0)],
+    'calendar:forRange': [dayOffset(0), dayOffset(7)],
     'calendar:status': [],
-    // `refresh` spawns a script that talks to Google. It resolves either way — an
-    // unconfigured machine returns `{ok: false}` rather than throwing, which is the
-    // behaviour worth pinning: a missing calendar must never break the app.
+    'calendar:configure': [],
+    'calendar:openSetup': [],
+    'calendar:connect': ['person@example.com'],
+    'calendar:cancelConnect': [],
+    'calendar:disconnect': ['person@example.com'],
+    'calendar:calendars': ['person@example.com'],
+    'calendar:selectCalendars': ['person@example.com', []],
+    // Tests use an isolated, unconfigured directory and never contact Google.
     'calendar:refresh': [],
     'calendar:lastRefresh': [],
 
@@ -242,10 +248,13 @@ describe('every channel actually runs against an empty vault', () => {
      * It stays in `calls` so the coverage test still forces anyone adding a channel to
      * think about it; only the invocation is skipped, and only for this reason.
      */
-    const SPAWNS_A_BILLED_PROCESS = new Set(['inbox:sort'])
+    // Interactive handlers require Electron/user consent. Account-dependent handlers
+    // have integration coverage with injected Google responses in google-calendar.test.
+    const INTERACTIVE_OR_EXTERNAL = new Set(['inbox:sort', 'calendar:configure',
+      'calendar:openSetup', 'calendar:connect', 'calendar:calendars', 'calendar:selectCalendars'])
 
     for (const channel of IPC_CHANNELS) {
-      if (SPAWNS_A_BILLED_PROCESS.has(channel)) continue
+      if (INTERACTIVE_OR_EXTERNAL.has(channel)) continue
       const args = (calls[channel] ?? []).map((arg) => {
         if (typeof arg !== 'string') return arg
         if (arg === '__id__' && perChannelId[channel]) return perChannelId[channel]

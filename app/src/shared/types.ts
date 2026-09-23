@@ -42,6 +42,9 @@ export interface Todo {
   estimate_minutes: number | null
   actual_minutes: number | null
   due: DateString | null
+  /** Fixed calendar block, stored as ISO instants. Missing/null means not scheduled. */
+  scheduled_start?: string | null
+  scheduled_end?: string | null
   status: TodoStatus
   /** Non-null makes this a template. Templates never appear in a list. */
   recurrence: Recurrence | null
@@ -252,6 +255,28 @@ export interface CalendarEvent {
   end: string
   all_day: boolean
   location?: string
+  account_email?: string
+  calendar_id?: string
+  calendar_name?: string
+  color?: string
+  /** Free/transparent events display without occupying planning time. */
+  busy?: boolean
+}
+
+export interface GoogleCalendar {
+  id: string
+  name: string
+  color: string
+  primary: boolean
+  selected: boolean
+}
+
+export interface GoogleAccount {
+  email: string
+  connected: boolean
+  calendars: GoogleCalendar[]
+  last_sync: number | null
+  error?: string
 }
 
 /** Why the calendar is or is not usable, in the terms the UI needs to explain it. */
@@ -261,6 +286,7 @@ export interface CalendarStatus {
   /** OAuth client credentials exist — without these, connecting is not even possible. */
   configured: boolean
   last_refresh: number | null
+  accounts?: GoogleAccount[]
 }
 
 export interface CalendarRefreshResult {
@@ -268,6 +294,7 @@ export interface CalendarRefreshResult {
   events: number
   /** Present when the refresh failed, written for a human rather than a log. */
   error?: string
+  warnings?: string[]
 }
 
 // ---------------------------------------------------------------------------

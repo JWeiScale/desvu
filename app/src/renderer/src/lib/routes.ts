@@ -5,6 +5,7 @@
 
 export const ROUTE_IDS = [
   'today',
+  'calendar',
   'journal',
   'explore',
   'meals',
@@ -28,6 +29,10 @@ export interface RouteMeta {
 }
 
 export const ROUTES: Record<RouteId, RouteMeta> = {
+  calendar: {
+    id: 'calendar', label: 'Calendar', title: 'Calendar',
+    description: 'Make time for your work, alongside the calendars that shape your day.',
+  },
   today: {
     id: 'today',
     label: 'Today',

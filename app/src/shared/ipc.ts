@@ -3,6 +3,7 @@ import type {
   CalendarEvent,
   CalendarRefreshResult,
   CalendarStatus,
+  GoogleCalendar,
   CategorySpend,
   CreateTodoInput,
   CorrectionFactor,
@@ -143,12 +144,20 @@ export interface DesvuApi {
 
   calendar: {
     forDate(date: DateString): Promise<CalendarEvent[]>
+    forRange(from: DateString, to: DateString): Promise<CalendarEvent[]>
+    configure(): Promise<{ configured: boolean }>
+    openSetup(): Promise<void>
+    connect(email?: string): Promise<CalendarStatus>
+    cancelConnect(): Promise<void>
+    disconnect(email: string): Promise<void>
+    calendars(email: string): Promise<GoogleCalendar[]>
+    selectCalendars(email: string, ids: string[]): Promise<void>
     /** Epoch ms of the last successful refresh, or null if never. */
     lastRefresh(): Promise<number | null>
     /** Whether a Google refresh token is stored. False means "never connected". */
     status(): Promise<CalendarStatus>
     /** Pull from Google into `data/calendar.json`. Resolves with what changed. */
-    refresh(): Promise<CalendarRefreshResult>
+    refresh(range?: { from: DateString; to: DateString }): Promise<CalendarRefreshResult>
   }
 
   settings: {
@@ -235,6 +244,14 @@ export const IPC_CHANNELS = [
   'inbox:sortAvailable',
 
   'calendar:forDate',
+  'calendar:forRange',
+  'calendar:configure',
+  'calendar:openSetup',
+  'calendar:connect',
+  'calendar:cancelConnect',
+  'calendar:disconnect',
+  'calendar:calendars',
+  'calendar:selectCalendars',
   'calendar:lastRefresh',
   'calendar:status',
   'calendar:refresh',

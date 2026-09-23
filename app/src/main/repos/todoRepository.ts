@@ -1,3 +1,4 @@
+import { localDay, overlapsDay, scheduledEvent, scheduledWindow, scheduleOnDay, validateSchedule } from '@shared/scheduling'
 import { CATEGORIES } from '@shared/types'
 import type {
   Category,
@@ -77,6 +78,8 @@ function normalize(raw: Partial<Todo> & { id?: string }): Todo {
     estimate_minutes: typeof raw.estimate_minutes === 'number' ? raw.estimate_minutes : null,
     actual_minutes: typeof raw.actual_minutes === 'number' ? raw.actual_minutes : null,
     due: typeof raw.due === 'string' ? raw.due : null,
+    scheduled_start: typeof raw.scheduled_start === 'string' ? raw.scheduled_start : null,
+    scheduled_end: typeof raw.scheduled_end === 'string' ? raw.scheduled_end : null,
     status: (['open', 'doing', 'done', 'dropped'] as string[]).includes(raw.status as string)
       ? (raw.status as TodoStatus)
       : 'open',
@@ -154,6 +157,7 @@ function materializeInto(todos: Todo[], date: DateString, now: number): boolean 
     if (live) {
       // A missed day does not pile up — it becomes today's copy of the same chore.
       if (live.due === null || live.due < occurrence) {
+        Object.assign(live, scheduleOnDay(template, occurrence))
         live.due = occurrence
         live.updated_at = now
         changed = true
@@ -169,6 +173,7 @@ function materializeInto(todos: Todo[], date: DateString, now: number): boolean 
       ...template,
       id: newId(),
       due: occurrence,
+      ...scheduleOnDay(template, occurrence),
       status: 'open',
       recurrence: null,
       recurrence_parent: template.id,
@@ -187,6 +192,7 @@ function materializeInto(todos: Todo[], date: DateString, now: number): boolean 
 
 function validateCreate(input: CreateTodoInput): void {
   const issues = new Issues()
+  validateSchedule(input)
   checkNonEmptyText(issues, 'text', input.text)
   if (input.category !== undefined) checkCategory(issues, 'category', input.category)
   if (input.priority !== undefined) checkPriority(issues, 'priority', input.priority)
@@ -292,7 +298,11 @@ export const todoRepository = {
 
     return sortForDay(
       todos.filter(
-        (todo) => !isTemplate(todo) && isLive(todo) && todo.due !== null && todo.due <= date
+        (todo) => !isTemplate(todo) && isLive(todo) && (
+          scheduledWindow(todo)
+            ? overlapsDay(todo.scheduled_start!, todo.scheduled_end!, date)
+            : todo.due !== null && todo.due <= date
+        )
       )
     )
   },
@@ -314,7 +324,9 @@ export const todoRepository = {
             ? settings.todos.default_estimate_minutes
             : input.estimate_minutes,
         actual_minutes: input.actual_minutes ?? null,
-        due: input.due ?? null,
+        due: input.scheduled_start ? localDay(new Date(input.scheduled_start)) : input.due ?? null,
+        scheduled_start: input.scheduled_start ?? null,
+        scheduled_end: input.scheduled_end ?? null,
         status: input.status ?? 'open',
         recurrence: input.recurrence ?? null,
         recurrence_parent: input.recurrence_parent ?? null,
@@ -360,6 +372,12 @@ export const todoRepository = {
         created_at: existing.created_at,
         updated_at: Date.now(),
       }
+
+      if (patch.due !== undefined && patch.scheduled_start === undefined && scheduledWindow(existing)) {
+        Object.assign(next, patch.due ? scheduleOnDay(existing, patch.due) : { scheduled_start: null, scheduled_end: null })
+      }
+      validateSchedule(next)
+      if (next.scheduled_start) next.due = localDay(new Date(next.scheduled_start))
 
       // Keep completed_at consistent with status without making the caller manage it.
       if (patch.status !== undefined && patch.completed_at === undefined) {
@@ -423,6 +441,7 @@ export const todoRepository = {
               ...template,
               id: newId(),
               due: next,
+              ...scheduleOnDay(template, next),
               status: 'open',
               recurrence: null,
               recurrence_parent: template.id,
@@ -511,8 +530,8 @@ export const todoRepository = {
     const windowLength = Math.max(0, windowEnd - windowStart)
 
     const busy = mergeIntervals(
-      events
-        .filter((event) => !event.all_day)
+      [...events, ...todos.map(scheduledEvent).filter((event): event is NonNullable<typeof event> => event !== null)]
+        .filter((event) => !event.all_day && event.busy !== false)
         .map((event) => {
           const start = new Date(event.start)
           const end = new Date(event.end)
@@ -538,7 +557,7 @@ export const todoRepository = {
 
     let dueMinutes = 0
     let correctedMinutes = 0
-    for (const todo of todos) {
+    for (const todo of todos.filter((item) => !scheduledWindow(item))) {
       const minutes = effectiveMinutes(todo, fallback)
       const factor = factorFor.get(todo.category)
       dueMinutes += minutes
@@ -552,7 +571,7 @@ export const todoRepository = {
     const overflow: Todo[] = []
     let spent = 0
     let overflowing = false
-    for (const todo of todos) {
+    for (const todo of todos.filter((item) => !scheduledWindow(item))) {
       const minutes = effectiveMinutes(todo, fallback)
       const factor = factorFor.get(todo.category)
       const realistic = factor?.confident ? minutes * factor.factor : minutes

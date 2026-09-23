@@ -124,9 +124,17 @@ export const ipcHandlers = {
 
   // --- calendar ----------------------------------------------------------------------
   'calendar:forDate': (date: DateString) => calendarRepository.forDate(date),
+  'calendar:forRange': (from: DateString, to: DateString) => calendarRepository.forRange(from, to),
+  'calendar:configure': () => calendarSync().configure(),
+  'calendar:openSetup': () => calendarSync().openSetup(),
+  'calendar:connect': (email?: string) => calendarSync().connect(email),
+  'calendar:cancelConnect': () => calendarSync().cancelConnect(),
+  'calendar:disconnect': (email: string) => calendarSync().disconnect(email),
+  'calendar:calendars': (email: string) => calendarSync().calendars(email),
+  'calendar:selectCalendars': (email: string, ids: string[]) => calendarSync().selectCalendars(email, ids),
   'calendar:lastRefresh': () => calendarRepository.lastRefresh(),
   'calendar:status': () => calendarSync().status(),
-  'calendar:refresh': () => calendarSync().refresh(),
+  'calendar:refresh': (range?: { from: string; to: string }) => calendarSync().refresh(range),
 
   // --- settings ----------------------------------------------------------------------
   'settings:get': () => settingsRepository.get(),
