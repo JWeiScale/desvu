@@ -19,6 +19,7 @@ export type SearchKind = SearchHit['kind']
 /** Chip order. Deliberately stable, so the filter row does not reshuffle as you type. */
 export const SEARCH_KINDS: readonly SearchKind[] = [
   'todo',
+  'goal',
   'journal',
   'library',
   'brain-dump',
@@ -29,6 +30,7 @@ export const SEARCH_KINDS: readonly SearchKind[] = [
 
 export const KIND_LABEL: Record<SearchKind, string> = {
   todo: 'To-dos',
+  goal: 'Goals',
   journal: 'Journal',
   library: 'Library',
   'brain-dump': 'Brain dump',
@@ -40,6 +42,7 @@ export const KIND_LABEL: Record<SearchKind, string> = {
 /** Where a hit of this kind lives, for the "go to" action. */
 export const KIND_ROUTE: Record<SearchKind, RouteId> = {
   todo: 'today',
+  goal: 'goals',
   journal: 'journal',
   library: 'explore',
   'brain-dump': 'brain-dump',

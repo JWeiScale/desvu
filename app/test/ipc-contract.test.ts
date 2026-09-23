@@ -93,6 +93,11 @@ describe('every channel actually runs against an empty vault', () => {
     'todos:dayLoad': [dayOffset(0)],
     'todos:correctionFactors': [],
 
+    'goals:list': [],
+    'goals:create': [{ title: 'a goal from ipc', deadline: dayOffset(7) }],
+    'goals:update': ['__goal__', { status: 'completed' }],
+    'goals:remove': ['__goal__'],
+
     'journal:list': [],
     'journal:byDate': [dayOffset(0)],
     'journal:upsert': [{ entry_date: dayOffset(0), rating: 4 }],
@@ -194,6 +199,7 @@ describe('every channel actually runs against an empty vault', () => {
     const thirdTodo = (await callChannel('todos:create', { text: 'seed todo 3' })) as {
       id: string
     }
+    const goal = (await callChannel('goals:create', { title: 'seed goal', deadline: dayOffset(7) })) as { id: string }
     const journal = (await callChannel('journal:upsert', {
       entry_date: dayOffset(-1),
       rating: 5,
@@ -231,6 +237,7 @@ describe('every channel actually runs against an empty vault', () => {
     const substitutions: Record<string, string> = {
       __id__: todo.id,
       __journal__: journal.id,
+      __goal__: goal.id,
       __purchase__: purchase.id,
       __meal__: meal.id,
       __workout__: workout.id,

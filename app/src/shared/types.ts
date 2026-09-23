@@ -67,6 +67,27 @@ export type UpdateTodoInput = Partial<
 >
 
 // ---------------------------------------------------------------------------
+// goals
+// ---------------------------------------------------------------------------
+
+export type GoalStatus = 'active' | 'completed'
+
+export interface Goal {
+  id: string
+  title: string
+  /** A local calendar date; the goal is due through the end of this day. */
+  deadline: DateString
+  notes: string
+  status: GoalStatus
+  created_at: Timestamp
+  updated_at: Timestamp
+  completed_at: Timestamp | null
+}
+
+export type CreateGoalInput = Pick<Goal, 'title' | 'deadline'> & Partial<Pick<Goal, 'notes'>>
+export type UpdateGoalInput = Partial<Pick<Goal, 'title' | 'deadline' | 'notes' | 'status'>>
+
+// ---------------------------------------------------------------------------
 // journal
 // ---------------------------------------------------------------------------
 
@@ -390,7 +411,7 @@ export interface SortInboxProgress {
 }
 
 export interface SearchHit {
-  kind: 'todo' | 'journal' | 'library' | 'brain-dump' | 'meal' | 'workout' | 'synthesis'
+  kind: 'todo' | 'goal' | 'journal' | 'library' | 'brain-dump' | 'meal' | 'workout' | 'synthesis'
   id: string
   title: string
   snippet: string

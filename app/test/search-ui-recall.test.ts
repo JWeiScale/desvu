@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import type { SearchHit } from '../src/shared/types'
 import { brainDumpRepository } from '../src/main/repos/brainDumpRepository'
 import { financeRepository } from '../src/main/repos/financeRepository'
+import { goalRepository } from '../src/main/repos/goalRepository'
 import { journalRepository } from '../src/main/repos/journalRepository'
 import { libraryRepository } from '../src/main/repos/libraryRepository'
 import { mealRepository } from '../src/main/repos/mealRepository'
@@ -47,6 +48,7 @@ function throughTheUi(hits: SearchHit[], filters = DEFAULT_SEARCH_FILTERS): Sear
 }
 
 async function seedEveryKind(): Promise<void> {
+  await goalRepository.create({ title: 'quenelle goal', deadline: TODAY })
   // A todo that is finished — excluded from every list the app renders.
   const done = await todoRepository.create({ text: 'ship the quenelle writeup', category: 'school' })
   await todoRepository.complete(done.id, 45)
@@ -160,7 +162,7 @@ describe('nothing is hidden from recall (S3)', () => {
 })
 
 describe('coverage — every kind is reachable from one input (S1)', () => {
-  it('renders a group for all seven kinds', async () => {
+  it('renders a group for all eight kinds', async () => {
     await seedEveryKind()
 
     const groups = groupHits(applySearchFilters(await searchRepository.query('quenelle'), DEFAULT_SEARCH_FILTERS, TODAY))

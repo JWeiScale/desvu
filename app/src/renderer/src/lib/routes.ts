@@ -1,11 +1,12 @@
 /**
- * The six surfaces. These static routes do not need a router dependency — the whole
+ * The app surfaces. These static routes do not need a router dependency — the whole
  * mechanism is `location.hash` plus a zustand field (`store/ui.ts`).
  */
 
 export const ROUTE_IDS = [
   'today',
   'calendar',
+  'goals',
   'journal',
   'explore',
   'meals',
@@ -29,6 +30,10 @@ export interface RouteMeta {
 }
 
 export const ROUTES: Record<RouteId, RouteMeta> = {
+  goals: {
+    id: 'goals', label: 'Goals', title: 'Goals',
+    description: 'What you want to accomplish, with a date to work toward.',
+  },
   calendar: {
     id: 'calendar', label: 'Calendar', title: 'Calendar',
     description: 'Make time for your work, alongside the calendars that shape your day.',

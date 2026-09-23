@@ -133,7 +133,7 @@ describe('grouping', () => {
 
   it('covers every kind the contract defines', () => {
     expect(new Set(SEARCH_KINDS)).toEqual(
-      new Set(['todo', 'journal', 'library', 'brain-dump', 'synthesis', 'meal', 'workout'])
+      new Set(['todo', 'goal', 'journal', 'library', 'brain-dump', 'synthesis', 'meal', 'workout'])
     )
   })
 })

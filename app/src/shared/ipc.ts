@@ -6,6 +6,9 @@ import type {
   GoogleCalendar,
   CategorySpend,
   CreateTodoInput,
+  CreateGoalInput,
+  UpdateGoalInput,
+  Goal,
   CorrectionFactor,
   DateString,
   DayLoad,
@@ -54,6 +57,13 @@ export interface DesvuApi {
     /** The "is today realistic?" numbers, calendar included. */
     dayLoad(date: DateString): Promise<DayLoad>
     correctionFactors(): Promise<CorrectionFactor[]>
+  }
+
+  goals: {
+    list(): Promise<Goal[]>
+    create(input: CreateGoalInput): Promise<Goal>
+    update(id: string, updates: UpdateGoalInput): Promise<Goal>
+    remove(id: string): Promise<void>
   }
 
   journal: {
@@ -196,6 +206,11 @@ export const IPC_CHANNELS = [
   'todos:remove',
   'todos:dayLoad',
   'todos:correctionFactors',
+
+  'goals:list',
+  'goals:create',
+  'goals:update',
+  'goals:remove',
 
   'journal:list',
   'journal:byDate',

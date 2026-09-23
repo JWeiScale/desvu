@@ -3,6 +3,8 @@ import { IPC_CHANNELS, IPC_EVENTS } from '@shared/ipc'
 import type { DeepPartial, IpcChannel } from '@shared/ipc'
 import type {
   CreateTodoInput,
+  CreateGoalInput,
+  UpdateGoalInput,
   DateString,
   LibraryStatus,
   Meal,
@@ -23,6 +25,7 @@ import {
 } from './repos/calendarSyncRepository'
 import {
   brainDumpRepository,
+  goalRepository,
   synthesisRepository,
   calendarRepository,
   financeRepository,
@@ -61,6 +64,11 @@ export const ipcHandlers = {
   'todos:remove': (id: string) => todoRepository.remove(id),
   'todos:dayLoad': (date: DateString) => todoRepository.dayLoad(date),
   'todos:correctionFactors': () => todoRepository.correctionFactors(),
+
+  'goals:list': () => goalRepository.list(),
+  'goals:create': (input: CreateGoalInput) => goalRepository.create(input),
+  'goals:update': (id: string, updates: UpdateGoalInput) => goalRepository.update(id, updates),
+  'goals:remove': (id: string) => goalRepository.remove(id),
 
   // --- journal -----------------------------------------------------------------------
   'journal:list': () => journalRepository.list(),

@@ -4,6 +4,7 @@ import { VAULT_SUBDIRS, vaultPath } from '@shared/vault'
 import { readTextFileOrNull } from '../lib/atomic'
 import { listDirectory } from '../lib/paths'
 import { brainDumpRepository } from './brainDumpRepository'
+import { goalRepository } from './goalRepository'
 import { journalRepository } from './journalRepository'
 import { libraryRepository } from './libraryRepository'
 import { mealRepository } from './mealRepository'
@@ -100,9 +101,10 @@ async function synthesisCandidates(): Promise<Candidate[]> {
 }
 
 async function collectCandidates(): Promise<Candidate[]> {
-  const [todos, entries, library, threads, meals, workouts, synthesis] =
+  const [todos, goals, entries, library, threads, meals, workouts, synthesis] =
     await Promise.all([
       todoRepository.listAll(),
+      goalRepository.list(),
       journalRepository.list(),
       libraryRepository.listAll(),
       brainDumpRepository.listThreads(),
@@ -124,6 +126,17 @@ async function collectCandidates(): Promise<Candidate[]> {
         state: todo.status,
       },
       haystack: [todo.text, todo.notes, todo.tags.join(' '), todo.category, todo.status].join(' '),
+      weight: 1.2,
+    })
+  }
+
+  for (const goal of goals) {
+    candidates.push({
+      hit: {
+        kind: 'goal', id: goal.id, title: goal.title, snippet: '',
+        date: goal.deadline, state: goal.status,
+      },
+      haystack: [goal.title, goal.notes, goal.deadline, goal.status].join(' '),
       weight: 1.2,
     })
   }

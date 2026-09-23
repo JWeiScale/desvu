@@ -14,7 +14,7 @@ export function Sidebar(): React.JSX.Element {
 
   return (
     <aside
-      className="border-line bg-bg2 pt-titlebar relative flex h-full flex-col gap-[30px] overflow-hidden border-r px-[18px] pb-[30px]"
+      className="border-line bg-bg2 pt-titlebar relative flex h-full flex-col gap-[30px] overflow-y-auto border-r px-[18px] pb-[30px]"
       style={{ width: collapsed ? 'var(--sidebar-w-collapsed)' : 'var(--sidebar-w)' }}
     >
       {/* macOS traffic lights float here under `titleBarStyle: 'hiddenInset'`. The strip
@@ -51,7 +51,7 @@ export function Sidebar(): React.JSX.Element {
         </button>
       </div>
 
-      <nav className="flex flex-col gap-[3px]" aria-label="Surfaces">
+      <nav className="flex shrink-0 flex-col gap-[3px]" aria-label="Surfaces">
         {ROUTE_IDS.map((id) => (
           <NavRow
             key={id}
