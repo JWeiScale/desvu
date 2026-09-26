@@ -307,15 +307,17 @@ export const todoRepository = {
     )
   },
 
-  async create(input: CreateTodoInput): Promise<Todo> {
+  async create(input: CreateTodoInput, importId?: string): Promise<Todo> {
     validateCreate(input)
     const settings = await settingsRepository.get()
     const now = Date.now()
 
     return store.mutate((current) => {
       const todos = current.map(normalize)
+      const previous = importId ? todos.find((todo) => todo.id === importId) : undefined
+      if (previous) return { data: current, result: previous, write: false }
       const todo: Todo = {
-        id: newId(),
+        id: importId ?? newId(),
         text: input.text.trim(),
         category: input.category ?? 'personal',
         priority: input.priority ?? settings.todos.default_priority,

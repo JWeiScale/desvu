@@ -1,3 +1,5 @@
+import { useCallback, useState } from 'react'
+import { InstinctDialog } from '../instinct/InstinctDialog'
 import { cn } from '@/lib/cn'
 import { ROUTE_IDS, ROUTES, type RouteId } from '@/lib/routes'
 import { useUi } from '@/store/ui'
@@ -6,6 +8,8 @@ import { Eyebrow } from '../Card'
 import { QUICK_CAPTURE_GLOBAL_HINT } from './QuickCapture'
 
 export function Sidebar(): React.JSX.Element {
+  const [instinctOpen, setInstinctOpen] = useState(false)
+  const closeInstinct = useCallback(() => setInstinctOpen(false), [])
   const route = useUi((state) => state.route)
   const navigate = useUi((state) => state.navigate)
   const collapsed = useUi((state) => state.sidebarCollapsed)
@@ -78,7 +82,11 @@ export function Sidebar(): React.JSX.Element {
         <Button variant="soft" size="sm" full onClick={openQuickCapture} tabIndex={collapsed ? -1 : 0}>
           Quick capture
         </Button>
+        <Button variant="soft" size="sm" full onClick={() => setInstinctOpen(true)} tabIndex={collapsed ? -1 : 0}>
+          Instinct connection
+        </Button>
       </div>
+      {instinctOpen && <InstinctDialog onClose={closeInstinct} />}
     </aside>
   )
 }

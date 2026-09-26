@@ -314,3 +314,5 @@ byte-identical thread output between the app and the sort skill.
   other surface has been verified live in both themes.
 - Google Calendar now syncs through the multi-account desktop integration; see
   [setup and storage details](docs/calendar.md). Gmail integration is not configured.
+
+- Instinct iMessage imports can create tasks, goals, and Inbox notes; see [setup and protocol](docs/instinct.md).

@@ -1,3 +1,4 @@
+import { disconnectedStatus, type InstinctConnector } from './instinct/connector'
 import type { IpcMain } from 'electron'
 import { IPC_CHANNELS, IPC_EVENTS } from '@shared/ipc'
 import type { DeepPartial, IpcChannel } from '@shared/ipc'
@@ -64,6 +65,13 @@ export const ipcHandlers = {
   'todos:remove': (id: string) => todoRepository.remove(id),
   'todos:dayLoad': (date: DateString) => todoRepository.dayLoad(date),
   'todos:correctionFactors': () => todoRepository.correctionFactors(),
+
+  'instinct:status': () => instinct ? instinct.status() : Promise.resolve(disconnectedStatus()),
+  'instinct:check': () => instinct ? instinct.check() : Promise.resolve(disconnectedStatus()),
+  'instinct:configure': (contact: string, enabled: boolean) => {
+    if (!instinct) throw new Error('Instinct connection is not available in this runtime.')
+    return instinct.configure(contact, enabled)
+  },
 
   'goals:list': () => goalRepository.list(),
   'goals:create': (input: CreateGoalInput) => goalRepository.create(input),
@@ -176,6 +184,9 @@ async function invoke(channel: IpcChannel, args: unknown[]): Promise<unknown> {
  * Set by `registerIpcHandlers`. The sort repository streams progress while it runs, and
  * only the main entry knows how to reach the renderer windows.
  */
+let instinct: InstinctConnector | null = null
+export function setInstinctConnector(connector: InstinctConnector): void { instinct = connector }
+
 let sortRepository: SortInboxRepository | null = null
 let calendarSyncRepository: CalendarSyncRepository | null = null
 

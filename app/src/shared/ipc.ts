@@ -1,3 +1,4 @@
+import type { InstinctStatus } from './instinct'
 import type {
   BrainDumpThread,
   CalendarEvent,
@@ -38,6 +39,12 @@ import type {
  * preload allowlist. All three are checked by `test/ipc-contract.test.ts`.
  */
 export interface DesvuApi {
+  instinct: {
+    status(): Promise<InstinctStatus>
+    check(): Promise<InstinctStatus>
+    configure(contact: string, enabled: boolean): Promise<InstinctStatus>
+  }
+
   todos: {
     /** Excludes recurrence templates — they are not tasks. See `listTemplates`. */
     list(): Promise<Todo[]>
@@ -206,6 +213,10 @@ export const IPC_CHANNELS = [
   'todos:remove',
   'todos:dayLoad',
   'todos:correctionFactors',
+
+  'instinct:status',
+  'instinct:check',
+  'instinct:configure',
 
   'goals:list',
   'goals:create',

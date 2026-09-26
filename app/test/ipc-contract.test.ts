@@ -93,6 +93,10 @@ describe('every channel actually runs against an empty vault', () => {
     'todos:dayLoad': [dayOffset(0)],
     'todos:correctionFactors': [],
 
+    'instinct:status': [],
+    'instinct:check': [],
+    'instinct:configure': ['instinct@example.com', false],
+
     'goals:list': [],
     'goals:create': [{ title: 'a goal from ipc', deadline: dayOffset(7) }],
     'goals:update': ['__goal__', { status: 'completed' }],
@@ -257,7 +261,7 @@ describe('every channel actually runs against an empty vault', () => {
      */
     // Interactive handlers require Electron/user consent. Account-dependent handlers
     // have integration coverage with injected Google responses in google-calendar.test.
-    const INTERACTIVE_OR_EXTERNAL = new Set(['inbox:sort', 'calendar:configure',
+    const INTERACTIVE_OR_EXTERNAL = new Set(['instinct:configure', 'inbox:sort', 'calendar:configure',
       'calendar:openSetup', 'calendar:connect', 'calendar:calendars', 'calendar:selectCalendars'])
 
     for (const channel of IPC_CHANNELS) {

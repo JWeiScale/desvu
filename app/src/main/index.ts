@@ -1,3 +1,6 @@
+import { createInstinctConnector } from './instinct/connector'
+import { createMessagesReader } from './instinct/reader'
+import { setInstinctConnector } from './ipc-router'
 import {
   app,
   BrowserWindow,
@@ -280,6 +283,14 @@ if (!app.requestSingleInstanceLock()) {
     // for every entry in IPC_CHANNELS; a stub until the repositories land, which means
     // renderer calls reject and the UI falls through to its error/empty states.
     registerIpcHandlers(ipcMain, broadcast, app.getAppPath())
+
+    const instinct = createInstinctConnector({
+      statePath: path.join(app.getPath('userData'), 'instinct/connection.json'),
+      reader: createMessagesReader(app.getAppPath()),
+    })
+    setInstinctConnector(instinct)
+    instinct.start()
+    app.on('will-quit', () => instinct.stop())
 
     startVaultWatcher()
     mainWindow = createWindow()

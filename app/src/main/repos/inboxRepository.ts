@@ -19,7 +19,7 @@ import { Issues, checkNonEmptyText } from '../lib/validate'
  * `/sort-inbox` does all the routing, so a malformed message is impossible.
  */
 export const INBOX_SEPARATOR = ' · '
-export type InboxSource = 'telegram' | 'app'
+export type InboxSource = 'telegram' | 'app' | 'instinct'
 
 export interface InboxLine {
   /** Vault-relative, so `system:openInObsidian` can be handed it directly. */
@@ -88,7 +88,7 @@ export const inboxRepository = {
       const relative = `${VAULT_SUBDIRS.inbox}/${name}`
 
       for (const line of raw.split(/\r?\n/)) {
-        const trimmed = line.replace(/\s+$/, '')
+        const trimmed = line.replace(/ <!-- desvu-import:instinct_[a-f0-9]{64} -->$/, '').replace(/\s+$/, '')
         if (trimmed.trim() === '' || SORTED.test(trimmed)) continue
         // Skip markdown headings a human may have added to the day file.
         if (trimmed.trimStart().startsWith('#')) continue
@@ -110,7 +110,8 @@ export const inboxRepository = {
   async append(
     text: string,
     source: InboxSource = 'app',
-    now: Date = new Date()
+    now: Date = new Date(),
+    importId?: string
   ): Promise<InboxLine> {
     const issues = new Issues()
     checkNonEmptyText(issues, 'text', text)
@@ -119,18 +120,20 @@ export const inboxRepository = {
     const date = todayString(now)
     const relative = inboxFileFor(date)
     const absolute = vaultPath(VAULT_SUBDIRS.inbox, `${date}.md`)
-    const line = formatInboxLine(text, source, now)
+    const line = formatInboxLine(importId ? text.replace(/\s+/g, ' ') : text, source, now)
+    const marker = importId ? ` <!-- desvu-import:${importId} -->` : ''
 
     // The Inbox has three writers — this app, the Telegram bot, and `/sort-inbox` ticking
     // lines off — all rewriting the same day file, so it takes the cross-process lock too.
     return withFileLock(absolute, async () =>
       withVaultLock(async () => {
         const existing = await readTextFileOrNull(absolute)
+        if (marker && existing?.includes(marker)) return { file: relative, line, at: now.getTime() }
         const body =
           existing === null || existing === ''
             ? inboxDayHeading(date)
             : existing.replace(/\n+$/, '') + '\n'
-        await atomicWriteFile(absolute, `${body}${line}\n`)
+        await atomicWriteFile(absolute, `${body}${line}${marker}\n`)
         return { file: relative, line, at: now.getTime() }
       })
     )

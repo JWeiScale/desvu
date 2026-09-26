@@ -53,12 +53,14 @@ export const goalRepository = {
     )
   },
 
-  async create(input: CreateGoalInput): Promise<Goal> {
+  async create(input: CreateGoalInput, importId?: string): Promise<Goal> {
     validate(input)
     return store.mutate((current) => {
+      const previous = importId ? current.find((goal) => goal.id === importId) : undefined
+      if (previous) return { data: current, result: previous, write: false }
       const now = Date.now()
       const goal: Goal = {
-        id: newId(), title: input.title.trim(), deadline: input.deadline,
+        id: importId ?? newId(), title: input.title.trim(), deadline: input.deadline,
         notes: input.notes ?? '', status: 'active',
         created_at: now, updated_at: now, completed_at: null,
       }

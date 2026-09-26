@@ -11,3 +11,7 @@ dist/
 # these must never be committed, private repo or not.
 .progress/journal-surface/
 .progress/**/journal*.png
+
+# Pinned local Messages reader; fetch with app/scripts/fetch-imsg.sh
+app/resources/imsg/imsg
+app/resources/imsg/*.bundle/
